@@ -1,22 +1,20 @@
-require 'rubygems'      # <-- Added this require
+require 'rubygems'      
 require 'em-websocket'
 require 'sinatra/base'
 require './github-api.rb'
 
-EventMachine.run do     # <-- Changed EM to EventMachine
+EventMachine.run do     
   class App < Sinatra::Base
       get '/' do
           File.read(File.join('public', 'index.html'))
       end
   end
 
-  EventMachine::WebSocket.start(:host => '0.0.0.0', :port => 8080) do |ws| # <-- Added |ws|
-      # Websocket code here
+  EventMachine::WebSocket.start(:host => '0.0.0.0', :port => 8080) do |ws| 
       @github_client = GithubApi.new
       @github_events = nil
       timer = nil
       ws.onopen {
-          #ws.send "connected!!!!"
           puts "Ping supported: #{ws.pingable?}"
           timer = EM.add_periodic_timer(1) {
             @github_events = @github_client.get_json_events
